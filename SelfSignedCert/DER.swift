@@ -18,9 +18,8 @@ enum DERTag: UInt8 {
     case sequence = 16
     case `set` = 17
     // According to Wikipedia, this should be 22 instead of 20.
-    // However, the original code from @svdo uses 20, and so is the test fixtures.
-    // TODO: Figure out whether we should use 20 or 22.
-    case ia5String = 20 // 22
+    // However, the original code from @svdo uses 20.
+    case ia5String = 22
     case generalizedTime = 24
 }
 
@@ -213,8 +212,9 @@ extension String: DEREncodable {
 
     private var tag: DERTag {
         for scalar in unicodeScalars {
-            guard scalar.isASCII else { return .utf8String }
-            guard Self.printableCharset.contains(scalar) else { return .ia5String }
+            // It appears that X.509 spec disfavors the use of IA5String, which is only mentioned
+            // for the emailAddress key. Hence we just use UTF8String and PrintableString.
+            guard scalar.isASCII, Self.printableCharset.contains(scalar) else { return .utf8String }
         }
         return .printableString
     }
@@ -243,7 +243,15 @@ extension Date: DEREncodable {
     }
 
     func encodeDERContent(to builder: inout DERBuilder) {
-        builder.append(contentsOf: Self.formatter.string(from: self).utf8)
+        let formatted: String
+        if self == .distantFuture {
+            // Per RFC 5280 4.1.2.5.
+            formatted = "99991231235959Z"
+        } else {
+            formatted = Self.formatter.string(from: self)
+        }
+
+        builder.append(contentsOf: formatted.utf8)
     }
 }
 
