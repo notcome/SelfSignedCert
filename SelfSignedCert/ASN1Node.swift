@@ -170,6 +170,5 @@ struct ASN1Obj: ASN1Node {
             bytes += child
         }
         return bytes
-        fatalError()
     }
 }

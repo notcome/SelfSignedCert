@@ -3,7 +3,7 @@
 // Copyright © 2022 Minsheng Liu. All rights reserved.
 
 import Foundation
-import CryptoKit
+import Crypto
 
 struct Certificate {
     var tbsCertificate: TBSCertificate
