@@ -74,23 +74,6 @@ struct CertificateRequest {
         }
         return data.bytes
     }
-    
-    func selfSign(withPrivateKey key:SecKey) -> [UInt8]? {
-        guard let info = self.info(usingSubjectAsIssuer:true) else {
-            return nil
-        }
-
-        let dataToSign = info.toDER()
-        guard let signedData = key.sign(data:dataToSign) else {
-            return nil
-        }
-        let signature = NSDEREncodable(BitString(data: Data(signedData)))
-
-        let signedInfo: NSArray = [ info, [
-            NSDEREncodable(OID.rsaWithSHA1AlgorithmID),
-            NSNull()], signature]
-        return signedInfo.toDER()
-    }
 }
 
 extension CertificateRequest {

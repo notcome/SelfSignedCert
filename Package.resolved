@@ -20,15 +20,6 @@
         }
       },
       {
-        "package": "IDZSwiftCommonCrypto",
-        "repositoryURL": "https://github.com/iosdevzone/IDZSwiftCommonCrypto",
-        "state": {
-          "branch": null,
-          "revision": "d824371e670bd57eb456bbc41139b4997f7207b8",
-          "version": "0.13.1"
-        }
-      },
-      {
         "package": "Nimble",
         "repositoryURL": "https://github.com/Quick/Nimble.git",
         "state": {
@@ -56,12 +47,12 @@
         }
       },
       {
-        "package": "SecurityExtensions",
-        "repositoryURL": "https://github.com/svdo/swift-SecurityExtensions",
+        "package": "swift-crypto",
+        "repositoryURL": "https://github.com/apple/swift-crypto.git",
         "state": {
           "branch": null,
-          "revision": "22a6b3ad4afae59e8dd33b0ccb45fa50cb1deab3",
-          "version": "4.0.1"
+          "revision": "d9825fa541df64b1a7b182178d61b9a82730d01f",
+          "version": "2.1.0"
         }
       }
     ]

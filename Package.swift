@@ -1,13 +1,14 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 import PackageDescription
 
 let package = Package(
     name: "SelfSignedCert",
     platforms: [
-        .macOS(.v11), .iOS(.v14), .tvOS(.v14)
+        .macOS(.v11),
+        .iOS(.v14),
+        .tvOS(.v14)
     ],
     products: [
-        // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "SelfSignedCert",
             targets: ["SelfSignedCert"]
@@ -15,8 +16,7 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/iosdevzone/IDZSwiftCommonCrypto", from: "0.13.1"),
-        .package(name: "SecurityExtensions", url: "https://github.com/svdo/swift-SecurityExtensions", from: "4.0.1"),
+        .package(url: "https://github.com/apple/swift-crypto.git", .upToNextMajor(from: "2.1.0")),
         .package(name: "SwiftBytes", url: "https://github.com/dapperstout/swift-bytes.git", from: "0.8.0"),
 
         .package(name: "Quick", url: "https://github.com/Quick/Quick.git", from: "5.0.0"),
@@ -27,7 +27,9 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "SelfSignedCert",
-            dependencies: ["IDZSwiftCommonCrypto", "SecurityExtensions", "SwiftBytes"],
+            dependencies: [
+                "SwiftBytes"
+            ],
             path: "SelfSignedCert",
             exclude: ["Info.plist"]
         ),
@@ -36,12 +38,14 @@ let package = Package(
             dependencies: [
                 "Quick",
                 "Nimble",
-                "SelfSignedCert"
+                "SelfSignedCert",
+                .product(name: "Crypto", package: "swift-crypto"),
             ],
             path: "SelfSignedCertTests",
             resources: [
                 .copy("certdata.der"),
-                .copy("pubkey.bin")
+                .copy("pubkey.bin"),
+                .process("Fixtures"),
             ]
         )
     ]

@@ -88,16 +88,3 @@ class CertificateNameTests: QuickSpec {
     }
 
 }
-
-final class CertificateNameXCTests: XCTestCase {
-    func testDEREncoding() {
-        var cn = CertificateName()
-        cn.commonName = "J.R. 'Bob' Dobbs"
-        cn.emailAddress = "bob@subgenius.org"
-        var list = cn.components
-        list.tag = .sequence
-        XCTAssertEqual(
-            list.toDER(),
-            [48, 61, 49, 25, 48, 23, 6, 3, 85, 4, 3, 19, 16, 74, 46, 82, 46, 32, 39, 66, 111, 98, 39, 32, 68, 111, 98, 98, 115, 49, 32, 48, 30, 6, 9, 42, 134, 72, 134, 247, 13, 1, 9, 1, 20, 17, 98, 111, 98, 64, 115, 117, 98, 103, 101, 110, 105, 117, 115, 46, 111, 114, 103])
-    }
-}
