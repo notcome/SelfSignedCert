@@ -7,8 +7,8 @@ import XCTest
 @testable import SelfSignedCert
 
 final class DERTests: XCTestCase {
-    func testEncodeNull() {
-        XCTAssertEqual(NSNull().toDER(), [0x05, 0x00])
+    func testEncodeOptional() {
+        XCTAssertEqual((nil as Int?).toDER(), [0x05, 0x00])
     }
 
     func testEncodeBooleans() {
