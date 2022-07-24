@@ -8,7 +8,7 @@ import XCTest
 
 final class DERTests: XCTestCase {
     func testEncodeOptional() {
-        XCTAssertEqual((nil as Int?).toDER(), [0x05, 0x00])
+        XCTAssertEqual(ASN1.Null().toDER(), [0x05, 0x00])
     }
 
     func testEncodeBooleans() {
@@ -53,9 +53,13 @@ final class DERTests: XCTestCase {
 
 
     func testEncodeDates() {
-        let date = Date(timeIntervalSinceReferenceDate: 265336576)
-        let expected = [0x18, 0x0F] + [UInt8]("20090530003616Z".utf8)
-        XCTAssertEqual(date.toDER(), expected)
+        let date1 = Date(timeIntervalSinceReferenceDate: 265336576)
+        let expected1 = [0x18, 0x0F] + [UInt8]("20090530003616Z".utf8)
+        XCTAssertEqual(date1.toDER(), expected1)
+
+        let date2 = Date.distantFuture
+        let expected2 = [0x18, 0x0F] + [UInt8]("99991231235959Z".utf8)
+        XCTAssertEqual(date2.toDER(), expected2)
     }
 
     func testEncodeOIDs() {

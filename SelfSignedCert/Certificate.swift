@@ -5,7 +5,7 @@
 import Foundation
 import Crypto
 
-struct Certificate {
+public struct Certificate {
     var tbsCertificate: TBSCertificate
     var algorithm: SignatureAlgorithm { tbsCertificate.signature }
     var signatureValue: BitString
@@ -22,14 +22,32 @@ extension Certificate: ASN1Convertible {
 }
 
 extension Certificate {
-    struct TBSCertificate {
-        var version: Version
-        var serialNo: UInt64
-        var signature: SignatureAlgorithm
-        var issuer: Name
-        var validity: Validity
-        var subject: Name
-        var subjectPublicKeyInfo: SubjectPublicKeyInfo
+    public struct TBSCertificate {
+        public var version: Version
+        public var serialNo: UInt64
+        public var signature: SignatureAlgorithm
+        public var issuer: Name
+        public var validity: Validity
+        public var subject: Name
+        public var subjectPublicKeyInfo: SubjectPublicKeyInfo
+
+        public init(
+            version: Version,
+            serialNo: UInt64,
+            signature: SignatureAlgorithm,
+            issuer: Name = .init(),
+            validity: Validity,
+            subject: Name = .init(),
+            subjectPublicKeyInfo: SubjectPublicKeyInfo
+        ) {
+            self.version = version
+            self.serialNo = serialNo
+            self.signature = signature
+            self.issuer = issuer
+            self.validity = validity
+            self.subject = subject
+            self.subjectPublicKeyInfo = subjectPublicKeyInfo
+        }
     }
 }
 
@@ -48,7 +66,7 @@ extension Certificate.TBSCertificate: ASN1Convertible {
 }
 
 extension Certificate {
-    enum Version: Int, Hashable {
+    public enum Version: Int, Hashable {
         case v3 = 2
     }
 }
@@ -62,7 +80,7 @@ extension Certificate.Version: ASN1Convertible {
 }
 
 extension Certificate {
-    enum SignatureAlgorithm: Hashable {
+    public enum SignatureAlgorithm: Hashable {
         case ecdsaWithSHA256
 
         var oid: OID {
@@ -73,7 +91,7 @@ extension Certificate {
         }
     }
 
-    enum PublicKeyAlgorithm: Hashable {
+    public enum PublicKeyAlgorithm: Hashable {
         case p256
     }
 }
@@ -104,9 +122,14 @@ extension Certificate.PublicKeyAlgorithm: ASN1Convertible {
 }
 
 extension Certificate {
-    struct Name: Equatable {
-        var commonName: String?
-        var emailAddress: String?
+    public struct Name: Equatable {
+        public var commonName: String?
+        public var emailAddress: String?
+
+        public init(commonName: String? = nil, emailAddress: String? = nil) {
+            self.commonName = commonName
+            self.emailAddress = emailAddress
+        }
     }
 }
 
@@ -126,7 +149,7 @@ extension Certificate.Name: ASN1Convertible {
                 ASN1Set {
                     ASN1Seq {
                         OID.emailAddress
-                        ASN1.IA5String(content: emailAddress)
+                        ASN1.IA5String(emailAddress)
                     }
                 }
             }
@@ -135,27 +158,28 @@ extension Certificate.Name: ASN1Convertible {
 }
 
 extension Certificate {
-    struct Validity: Equatable {
-        var notBefore: Date
-        var notAfter: Date?
+    public struct Validity: Equatable {
+        public var notBefore: Date
+        public var notAfter: Date?
+
+        public init(from notBefore: Date, to notAfter: Date? = nil) {
+            self.notBefore = notBefore
+            self.notAfter = notAfter
+        }
     }
 }
 
 extension Certificate.Validity: ASN1Convertible {
     var asn1Tree: some ASN1Node {
         ASN1Seq {
-            ASN1.Time.date(notBefore)
-            if let notAfter = notAfter {
-                ASN1.Time.date(notAfter)
-            } else {
-                ASN1.Time.distantFuture
-            }
+            notBefore
+            notAfter ?? Date.distantFuture
         }
     }
 }
 
 extension Certificate {
-    enum SubjectPublicKeyInfo {
+    public enum SubjectPublicKeyInfo {
         case p256(P256.Signing.PublicKey)
     }
 }
@@ -166,5 +190,21 @@ extension Certificate.SubjectPublicKeyInfo: ASN1Convertible {
         case .p256(let publicKey):
             return RawDER(data: publicKey.derRepresentation)
         }
+    }
+}
+
+extension Certificate.TBSCertificate {
+    /// Generates a certificate signed using ECDSA with SHA256.
+    public func sign(with privateKey: P256.Signing.PrivateKey) throws -> Certificate {
+        precondition(self.signature == .ecdsaWithSHA256)
+
+        let toSign = Data(toDER())
+        var sha256 = SHA256()
+        sha256.update(data: toSign)
+        let digest = sha256.finalize()
+        let signature = try privateKey.signature(for: digest)
+        return Certificate(
+            tbsCertificate: self,
+            signatureValue: .init(data: signature.derRepresentation))
     }
 }

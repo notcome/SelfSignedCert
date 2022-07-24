@@ -32,38 +32,41 @@ extension UInt16: ASN1Node {}
 extension UInt32: ASN1Node {}
 extension UInt64: ASN1Node {}
 
-
 extension String: ASN1Node {}
+
+extension ASN1 {
+    struct Null: Equatable {}
+}
+
+
+extension ASN1.Null: DEREncodable {
+    var derHeader: DERHeader {
+        .init(tag: .null, byteCount: 0)
+    }
+
+    func encodeDERContent(to builder: inout DERBuilder) {
+    }
+}
+
 
 extension ASN1 {
     struct IA5String: Hashable {
         var content: String
-    }
-}
 
-extension ASN1.IA5String: ASN1Node {
-    func toDER() -> [UInt8] {
-        fatalError()
-    }
-}
-
-extension ASN1 {
-    enum Time: Hashable {
-        case date(Date)
-        case distantFuture
-    }
-}
-
-extension ASN1.Time: ASN1Node {
-    func toDER() -> [UInt8] {
-        let date: Date
-        switch self {
-        case .date(let value):
-            date = value
-        case .distantFuture:
-            date = .distantFuture
+        init(_ content: String) {
+            assert(content.utf8.allSatisfy { $0 <= 0x7F })
+            self.content = content
         }
-        return date.toDER()
+    }
+}
+
+extension ASN1.IA5String: DEREncodable, ASN1Node {
+    var derHeader: DERHeader {
+        .init(tag: .ia5String, byteCount: content.utf8.count)
+    }
+
+    func encodeDERContent(to builder: inout DERBuilder) {
+        builder.append(contentsOf: content.utf8)
     }
 }
 

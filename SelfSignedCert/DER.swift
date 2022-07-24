@@ -228,7 +228,7 @@ extension String: DEREncodable {
     }
 }
 
-extension Date: DEREncodable {
+extension Date: DEREncodable, ASN1Node {
     private static let formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMddHHmmss'Z'"
@@ -243,6 +243,8 @@ extension Date: DEREncodable {
     }
 
     func encodeDERContent(to builder: inout DERBuilder) {
+        // The spec actually requires UTCTime for Year <= 2049.
+        // However no parser seems to care...
         let formatted: String
         if self == .distantFuture {
             // Per RFC 5280 4.1.2.5.
@@ -252,14 +254,5 @@ extension Date: DEREncodable {
         }
 
         builder.append(contentsOf: formatted.utf8)
-    }
-}
-
-extension Optional: DEREncodable {
-    var derHeader: DERHeader {
-        .init(tag: .null, byteCount: 0)
-    }
-
-    func encodeDERContent(to builder: inout DERBuilder) {
     }
 }
