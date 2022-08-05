@@ -72,43 +72,43 @@ extension ASN1.IA5String: DEREncodable, ASN1Node {
 
 @resultBuilder
 struct ASN1Builder {
-    static func buildExpression<T: ASN1Node>(_ value: T) -> [any ASN1Node] {
+    static func buildExpression<T: ASN1Node>(_ value: T) -> [ASN1Node] {
         [value]
     }
 
-    static func buildBlock(_ components: [any ASN1Node]...) -> [any ASN1Node] {
+    static func buildBlock(_ components: [ASN1Node]...) -> [ASN1Node] {
         components.reduce(into: []) { $0 += $1 }
     }
 
-    static func buildEither(first component: [any ASN1Node]) -> [any ASN1Node] {
+    static func buildEither(first component: [ASN1Node]) -> [ASN1Node] {
         component
     }
 
-    static func buildEither(second component: [any ASN1Node]) -> [any ASN1Node] {
+    static func buildEither(second component: [ASN1Node]) -> [ASN1Node] {
         component
     }
 
-    static func buildOptional(_ component: [any ASN1Node]?) -> [any ASN1Node] {
+    static func buildOptional(_ component: [ASN1Node]?) -> [ASN1Node] {
         component ?? []
     }
 
-    static func buildPartialBlock(first: [any ASN1Node]) -> [any ASN1Node] {
+    static func buildPartialBlock(first: [ASN1Node]) -> [ASN1Node] {
         first
     }
 
-    static func buildPartialBlock(accumulated: [any ASN1Node], next: [any ASN1Node]) -> [any ASN1Node] {
+    static func buildPartialBlock(accumulated: [ASN1Node], next: [ASN1Node]) -> [ASN1Node] {
         accumulated + next
     }
 }
 
 struct ASN1Seq: ASN1Node {
-    var children: [any ASN1Node]
+    var children: [ASN1Node]
 
-    init(children: [any ASN1Node]) {
+    init(children: [ASN1Node]) {
         self.children = children
     }
 
-    init(@ASN1Builder content: () -> [any ASN1Node]) {
+    init(@ASN1Builder content: () -> [ASN1Node]) {
         self.children = content()
     }
 
@@ -126,13 +126,13 @@ struct ASN1Seq: ASN1Node {
 }
 
 struct ASN1Set: ASN1Node {
-    var children: [any ASN1Node]
+    var children: [ASN1Node]
 
-    init(children: [any ASN1Node]) {
+    init(children: [ASN1Node]) {
         self.children = children
     }
 
-    init(@ASN1Builder content: () -> [any ASN1Node]) {
+    init(@ASN1Builder content: () -> [ASN1Node]) {
         self.children = content()
     }
 
@@ -151,14 +151,14 @@ struct ASN1Set: ASN1Node {
 
 struct ASN1Obj: ASN1Node {
     var tag: UInt8
-    var children: [any ASN1Node]
+    var children: [ASN1Node]
 
-    init(tag: UInt8, children: [any ASN1Node]) {
+    init(tag: UInt8, children: [ASN1Node]) {
         self.tag = tag
         self.children = children
     }
 
-    init(tag: UInt8, @ASN1Builder content: () -> [any ASN1Node]) {
+    init(tag: UInt8, @ASN1Builder content: () -> [ASN1Node]) {
         self.tag = tag
         self.children = content()
     }
