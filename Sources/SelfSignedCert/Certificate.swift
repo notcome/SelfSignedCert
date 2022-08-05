@@ -19,6 +19,8 @@ extension Certificate: ASN1Convertible {
             signatureValue
         }
     }
+
+    public func toDER() -> [UInt8] { asn1Tree.toDER() }
 }
 
 extension Certificate {
